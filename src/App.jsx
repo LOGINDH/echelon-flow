@@ -9,8 +9,9 @@ function MainLayout() {
   const { user } = useAuth();
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
+  const isEmployeeRoute = location.pathname.startsWith('/employee');
 
-  if (isLoginPage) {
+  if (isLoginPage || (isEmployeeRoute && user?.role === 'employee')) {
     return <AppRoutes />;
   }
 

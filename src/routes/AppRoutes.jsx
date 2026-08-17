@@ -42,7 +42,8 @@ export default function AppRoutes() {
       {/* Employee Workspace Routes */}
       <Route element={<ProtectedRoute allowedRoles={['employee']} />}>
         <Route path="/employee" element={<EmployeeDashboard />} />
-        <Route path="/employee/tasks" element={<EmployeeTasks />} />
+        <Route path="/employee/tasks" element={<EmployeeDashboard defaultTab="tasks" />} />
+        <Route path="/employee/profile" element={<EmployeeDashboard defaultTab="profile" />} />
       </Route>
 
       {/* Default Catch-all Route */}

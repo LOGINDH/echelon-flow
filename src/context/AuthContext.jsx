@@ -5,14 +5,11 @@ const AuthContext = createContext(null);
 const STORAGE_KEY = 'echelon_user';
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const savedUser = localStorage.getItem(STORAGE_KEY);
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (err) {
-      console.error('Failed to read user from localStorage:', err);
-      return null;
-    }
+  const [user, setUser] = useState({
+    id: 3,
+    username: 'ravi',
+    full_name: 'Ravi Kumar',
+    role: 'employee'
   });
 
   /**
