@@ -1,7 +1,16 @@
-/**
- * Auth API Endpoints (Stubs)
- */
+import { apiFetch } from './config.js';
 
-export async function login(credentials) {
-  throw new Error("not implemented");
+/**
+ * Authenticates a user with username, password, and role.
+ *
+ * @param {string} username
+ * @param {string} password
+ * @param {string} role
+ * @returns {Promise<any>}
+ */
+export async function login(username, password, role) {
+  return apiFetch('/echelon_flow/login/', {
+    method: 'POST',
+    body: JSON.stringify({ username, password, role }),
+  });
 }
