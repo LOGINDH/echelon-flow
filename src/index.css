@@ -1,40 +1,286 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-@layer base {
-  * {
-    border-color: var(--color-slate-800, #1e293b);
+:root {
+  /* Color Palette - Warm Amber/Orange & Dark Espresso Glass */
+  --bg-dark-base: #0f0906;
+  --bg-gradient-start: #1a0b04;
+  --bg-gradient-mid: #2c1205;
+  --bg-gradient-end: #0a0503;
+  
+  --accent-amber: #f97316;
+  --accent-amber-light: #fb923c;
+  --accent-glow: rgba(249, 115, 22, 0.35);
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 237, 213, 0.75);
+  --text-muted: rgba(255, 237, 213, 0.5);
+
+  /* Glassmorphism Tokens */
+  --glass-bg: rgba(28, 18, 13, 0.55);
+  --glass-bg-hover: rgba(40, 25, 18, 0.65);
+  --glass-bg-active: rgba(50, 30, 20, 0.75);
+  --glass-border: rgba(255, 170, 110, 0.18);
+  --glass-border-highlight: rgba(255, 200, 150, 0.35);
+  --glass-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.65), 0 0 20px 0 rgba(249, 115, 22, 0.08);
+
+  /* High-contrast Status Tokens */
+  --status-pending-color: #fbbf24;
+  --status-pending-bg: rgba(251, 191, 36, 0.18);
+  --status-pending-border: rgba(251, 191, 36, 0.4);
+
+  --status-in-progress-color: #38bdf8;
+  --status-in-progress-bg: rgba(56, 189, 248, 0.18);
+  --status-in-progress-border: rgba(56, 189, 248, 0.4);
+
+  --status-completed-color: #34d399;
+  --status-completed-bg: rgba(52, 211, 153, 0.18);
+  --status-completed-border: rgba(52, 211, 153, 0.4);
+
+  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-dark-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Background Ambient Glow & Mesh Gradient */
+.app-container {
+  min-height: 100vh;
+  position: relative;
+  background: radial-gradient(circle at 15% 20%, #451a03 0%, transparent 45%),
+              radial-gradient(circle at 85% 75%, #7c2d12 0%, transparent 50%),
+              radial-gradient(circle at 50% 50%, #1c0a02 0%, var(--bg-dark-base) 100%);
+  background-attachment: fixed;
+}
+
+/* Floating Ambient Blur Blobs */
+.ambient-blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+.blob-1 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #ea580c, #7c2d12);
+  top: -100px;
+  right: -50px;
+}
+
+.blob-2 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, #9a3412, #451a03);
+  bottom: -150px;
+  left: -100px;
+}
+
+.blob-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #f97316, transparent);
+  top: 40%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+  opacity: 0.25;
+}
+
+/* Reusable Glass Card Utility */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 20px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card-hover:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-highlight);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.75), 0 0 25px 0 rgba(249, 115, 22, 0.15);
+}
+
+/* Form inputs styling */
+.glass-input {
+  width: 100%;
+  background: rgba(15, 9, 6, 0.6);
+  border: 1px solid rgba(255, 170, 110, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.glass-input:focus {
+  border-color: var(--accent-amber);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+.glass-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Glass Button Styling */
+.btn-primary {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-family: var(--font-family);
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(249, 115, 22, 0.6);
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: var(--font-family);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--glass-border-highlight);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+}
+
+.status-badge.pending {
+  color: var(--status-pending-color);
+  background: var(--status-pending-bg);
+  border: 1px solid var(--status-pending-border);
+}
+
+.status-badge.in_progress {
+  color: var(--status-in-progress-color);
+  background: var(--status-in-progress-bg);
+  border: 1px solid var(--status-in-progress-border);
+}
+
+.status-badge.completed {
+  color: var(--status-completed-color);
+  background: var(--status-completed-bg);
+  border: 1px solid var(--status-completed-border);
+}
+
+/* Headings scale */
+h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; }
+h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+h3 { font-size: 1.35rem; font-weight: 700; }
+h4 { font-size: 1.1rem; font-weight: 600; }
+
+.subtext {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Dashboard App Layout Structure */
+.tl-layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.tl-layout-main {
+  flex: 1;
+  margin-left: 280px;
+  padding: 20px 28px 40px;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .tl-layout-main {
+    margin-left: 0;
+    padding: 16px 16px 32px;
+  }
+
+  .sidebar-container {
+    left: -300px !important;
+    top: 0 !important;
+    height: 100vh !important;
+    border-radius: 0 20px 20px 0 !important;
+  }
+
+  .mobile-menu-btn, .mobile-close-btn {
+    display: flex !important;
+  }
+
+  .logout-text, .nav-user-info {
+    display: none !important;
   }
 }
 
-/* Custom Utilities for Echelon Flow UI */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Subtle Glass Card Entrance Animations */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  animation: fadeInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) ease-out;
 }
 
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
 
-::-webkit-scrollbar-track {
-  background: #090d16;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}

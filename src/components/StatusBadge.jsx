@@ -1,36 +1,45 @@
-import React from 'react';
+import { Clock, PlayCircle, CheckCircle2 } from 'lucide-react';
 
 /**
- * Reusable Status Badge Component
- * @param {Object} props
- * @param {'pending'|'in_progress'|'completed'|string} props.status - Status string
- * @param {string} [props.className] - Additional CSS classes
+ * High contrast status badge pill component.
+ * Uses tokens: pending, in_progress, completed
  */
-export default function StatusBadge({ status, className = '' }) {
-  const normalizedStatus = (status || '').toLowerCase().trim();
+export default function StatusBadge({ status }) {
+  const normalizedStatus = (status || 'pending').toLowerCase().replace(/\s+/g, '_');
 
-  let colorStyles = 'bg-slate-800 text-slate-300 border-slate-700';
-  let label = status || 'Unknown';
-  let dotColor = 'bg-slate-400';
+  const getStatusConfig = () => {
+    switch (normalizedStatus) {
+      case 'in_progress':
+      case 'inprogress':
+      case 'active':
+        return {
+          label: 'In Progress',
+          className: 'status-badge in_progress',
+          icon: <PlayCircle size={14} />,
+        };
+      case 'completed':
+      case 'done':
+        return {
+          label: 'Completed',
+          className: 'status-badge completed',
+          icon: <CheckCircle2 size={14} />,
+        };
+      case 'pending':
+      default:
+        return {
+          label: 'Pending',
+          className: 'status-badge pending',
+          icon: <Clock size={14} />,
+        };
+    }
+  };
 
-  if (normalizedStatus === 'pending') {
-    label = 'Pending';
-    colorStyles = 'bg-amber-950/60 text-amber-300 border-amber-500/30';
-    dotColor = 'bg-amber-400';
-  } else if (normalizedStatus === 'in_progress' || normalizedStatus === 'in progress') {
-    label = 'In Progress';
-    colorStyles = 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30';
-    dotColor = 'bg-indigo-400 animate-pulse';
-  } else if (normalizedStatus === 'completed') {
-    label = 'Completed';
-    colorStyles = 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30';
-    dotColor = 'bg-emerald-400';
-  }
+  const config = getStatusConfig();
 
   return (
-    <inline-span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${colorStyles} ${className}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-      <span>{label}</span>
-    </inline-span>
+    <span className={config.className}>
+      {config.icon}
+      <span>{config.label}</span>
+    </span>
   );
 }

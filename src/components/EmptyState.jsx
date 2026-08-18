@@ -1,28 +1,53 @@
-import React from 'react';
-import { FolderKanban } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
 
 /**
- * Reusable Empty State Card Component
- * @param {Object} props
- * @param {string} [props.title='No Items Found'] - Main title string
- * @param {string} [props.description='There is no data to display right now.'] - Subtitle text
- * @param {React.ReactNode} [props.icon] - Optional custom Lucide icon
- * @param {React.ReactNode} [props.action] - Optional button or call-to-action component
+ * Reusable Glass Empty State component.
  */
 export default function EmptyState({
-  title = 'No Items Found',
-  description = 'There is no data to display right now.',
-  icon: Icon = FolderKanban,
-  action = null,
+  title = 'No Data Found',
+  description = 'There are no items to display right now.',
+  icon: Icon = FolderOpen,
+  actionButton,
 }) {
   return (
-    <div className="glass-card p-10 rounded-2xl border border-slate-800 text-center flex flex-col items-center justify-center max-w-md mx-auto my-8">
-      <div className="w-14 h-14 rounded-2xl bg-indigo-950/60 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 shadow-inner">
-        <Icon className="w-7 h-7" />
+    <div
+      className="glass-card"
+      style={{
+        padding: '56px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        gap: '16px',
+        maxWidth: '520px',
+        margin: '0 auto',
+      }}
+    >
+      <div
+        style={{
+          width: '64px',
+          height: '64px',
+          borderRadius: '20px',
+          background: 'rgba(249, 115, 22, 0.12)',
+          border: '1px solid rgba(249, 115, 22, 0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 8px 24px rgba(249, 115, 22, 0.1)',
+        }}
+      >
+        <Icon size={32} color="#f97316" />
       </div>
-      <h3 className="text-lg font-bold text-slate-100 mb-1">{title}</h3>
-      <p className="text-sm text-slate-400 mb-6 leading-relaxed">{description}</p>
-      {action && <div>{action}</div>}
+
+      <div>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '6px' }}>{title}</h3>
+        <p className="subtext" style={{ fontSize: '0.9rem', maxWidth: '380px', margin: '0 auto' }}>
+          {description}
+        </p>
+      </div>
+
+      {actionButton && <div style={{ marginTop: '8px' }}>{actionButton}</div>}
     </div>
   );
 }

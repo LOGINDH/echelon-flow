@@ -1,44 +1,38 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-const STORAGE_KEY = 'echelon_user';
+const DEFAULT_MOCK_USER = {
+  id: 'tl-1',
+  name: 'Alex Morgan',
+  email: 'tl@echelon.com',
+  role: 'tl',
+  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+  title: 'Lead Development Manager'
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    id: 3,
-    username: 'ravi',
-    full_name: 'Ravi Kumar',
-    role: 'employee'
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('echelon_user');
+      return savedUser ? JSON.parse(savedUser) : DEFAULT_MOCK_USER;
+    } catch {
+      return DEFAULT_MOCK_USER;
+    }
   });
 
-  /**
-   * Log in user and persist session in state + localStorage.
-   * @param {Object} userData - Object containing user identity (id, name, email, role, etc.)
-   */
   const login = (userData) => {
     setUser(userData);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-    } catch (err) {
-      console.error('Failed to save user session to localStorage:', err);
-    }
+    localStorage.setItem('echelon_user', JSON.stringify(userData));
   };
 
-  /**
-   * Log out current user and clear local session state.
-   */
   const logout = () => {
     setUser(null);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (err) {
-      console.error('Failed to remove user session from localStorage:', err);
-    }
+    localStorage.removeItem('echelon_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user: user || DEFAULT_MOCK_USER, login, logout, isAuthenticated: true }}>
       {children}
     </AuthContext.Provider>
   );
@@ -51,5 +45,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-export default AuthContext;

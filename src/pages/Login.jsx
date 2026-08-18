@@ -1,273 +1,216 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { login as apiLogin } from '../api/auth';
-import { Eye, EyeOff } from 'lucide-react';
+import { loginUser } from '../api/auth';
+import { ShieldCheck, User, Lock, ArrowRight, Info } from 'lucide-react';
 
-const Login = () => {
-  const { user, login } = useAuth();
-  const navigate = useNavigate();
-  
+export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
-  
-  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState('tl');
   const [loading, setLoading] = useState(false);
-  
-  const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState('');
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') navigate('/admin', { replace: true });
-      else if (user.role === 'tl') navigate('/tl', { replace: true });
-      else if (user.role === 'employee') navigate('/employee', { replace: true });
-      else navigate('/', { replace: true });
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleRoleSelect = (selectedRole) => {
+    setRole(selectedRole);
+    if (selectedRole !== 'tl') {
+      toast.error(
+        `The ${selectedRole.toUpperCase()} workspace is not available in this build. Only Team Lead workspace is supported.`,
+        { duration: 4000, icon: '⚠️' }
+      );
     }
-  }, [user, navigate]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validation
-    const newErrors = {};
-    if (!username) newErrors.username = 'Username is required';
-    if (!password) newErrors.password = 'Password is required';
-    if (!role) newErrors.role = 'Role is required';
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+
+    if (!username.trim() || !password.trim()) {
+      toast.error('Please enter both username and password.');
       return;
     }
-    
-    setErrors({});
-    setApiError('');
+
+    if (role !== 'tl') {
+      toast.error('Only Team Lead login is enabled in this workspace build.', { icon: '🚫' });
+      return;
+    }
+
     setLoading(true);
-    
+    const toastId = toast.loading('Authenticating...');
+
     try {
-      const response = await apiLogin(username, password, role);
-      if (response.success) {
+      const response = await loginUser({ username, password, role: 'tl' });
+      
+      if (response && response.success) {
+        toast.success(`Welcome back, ${response.user?.full_name || response.user?.username || 'Team Lead'}!`, { id: toastId });
         login(response.user);
-        if (response.user.role === 'admin') navigate('/admin');
-        else if (response.user.role === 'tl') navigate('/tl');
-        else if (response.user.role === 'employee') navigate('/employee');
+        navigate('/tl');
       } else {
-        setApiError(response.message || 'Login failed. Please try again.');
+        toast.error(response?.message || 'Login failed. Please check credentials.', { id: toastId });
       }
-    } catch (error) {
-      setApiError(error.message || 'An unexpected error occurred. Please try again.');
+    } catch (err) {
+      toast.error(err.message || 'Login failed', { id: toastId });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#1a0a00]">
-      {/* Background Glow Shapes */}
-      <div 
-        className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] md:w-[600px] md:h-[600px] rounded-full blur-[100px] opacity-40 mix-blend-screen pointer-events-none"
-        style={{ backgroundColor: '#d97706' }}
-      ></div>
-      <div 
-        className="absolute bottom-[-150px] right-[-150px] w-[600px] h-[600px] md:w-[700px] md:h-[700px] rounded-full blur-[120px] opacity-50 mix-blend-screen pointer-events-none"
-        style={{ background: 'linear-gradient(135deg, #e65c00, #ff8c00)' }}
-      ></div>
-
-      {/* Glass Card */}
-      <div 
-        className="relative z-10 w-full max-w-[calc(100vw-32px)] md:max-w-[480px] p-8 md:p-12 animate-fade-in-up"
-        style={{
-          background: 'rgba(255, 120, 30, 0.08)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          borderRadius: '28px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
-        }}
-      >
-        {/* Card Header Typo */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h2 className="text-white font-bold text-lg leading-tight">Echelon</h2>
-            <p className="text-[rgba(255,255,255,0.7)] text-sm">Flow</p>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+      position: 'relative',
+      zIndex: 1,
+    }}>
+      <div className="glass-card" style={{
+        maxWidth: '440px',
+        width: '100%',
+        padding: '40px 32px',
+        backdropFilter: 'blur(24px) saturate(180%)',
+      }}>
+        {/* Brand Header */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(234, 88, 12, 0.1) 100%)',
+            border: '1px solid rgba(249, 115, 22, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px',
+            boxShadow: '0 8px 20px rgba(249, 115, 22, 0.25)',
+          }}>
+            <ShieldCheck size={32} color="#f97316" />
           </div>
-          <div className="text-white text-sm font-medium">
-            Welcome back
-          </div>
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '6px' }}>Echelon Flow</h1>
+          <p className="subtext" style={{ fontSize: '0.9rem' }}>Team Lead Workspace Portal</p>
         </div>
 
-        {/* Large Heading */}
-        <h1 className="text-white font-[800] text-[32px] md:text-[40px] leading-[1.1] tracking-[-0.02em] mb-8">
-          Hello,<br />
-          Sign in to<br />
-          Echelon Flow.
-        </h1>
-
-        {/* Error Banner */}
-        {apiError && (
-          <div 
-            className="mb-6 p-3 rounded-[14px] text-white text-sm"
-            style={{
-              background: 'rgba(255, 50, 50, 0.12)',
-              border: '1px solid rgba(255, 50, 50, 0.25)',
-            }}
-          >
-            {apiError}
+        {/* Role Selector Tabs */}
+        <div style={{ marginBottom: '28px' }}>
+          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '8px' }}>
+            Select Workspace Role
+          </label>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1.2fr 1fr',
+            gap: '6px',
+            background: 'rgba(15, 9, 6, 0.7)',
+            padding: '4px',
+            borderRadius: '14px',
+            border: '1px solid var(--glass-border)',
+          }}>
+            {[
+              { id: 'admin', label: 'Admin' },
+              { id: 'tl', label: 'Team Lead' },
+              { id: 'employee', label: 'Employee' },
+            ].map((r) => {
+              const active = role === r.id;
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => handleRoleSelect(r.id)}
+                  style={{
+                    padding: '9px 6px',
+                    borderRadius: '10px',
+                    border: active ? '1px solid rgba(249, 115, 22, 0.5)' : '1px solid transparent',
+                    background: active ? 'linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(234, 88, 12, 0.2) 100%)' : 'transparent',
+                    color: active ? '#ffffff' : 'var(--text-muted)',
+                    fontWeight: active ? 700 : 500,
+                    fontSize: '0.825rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {r.label}
+                </button>
+              );
+            })}
           </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-white text-[13px] font-medium mb-1.5">
+          {role !== 'tl' && (
+            <div style={{
+              marginTop: '10px',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '0.8rem',
+              color: '#fca5a5',
+            }}>
+              <Info size={16} style={{ shrink: 0 }} />
+              <span>Only Team Lead role is active in this build spec.</span>
+            </div>
+          )}
+        </div>
+
+        {/* Login Form */}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>
               Username
             </label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              className="w-full text-[15px] text-white placeholder-[rgba(255,255,255,0.35)] p-[14px_16px] rounded-[14px] outline-none transition-all duration-200"
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = 'rgba(255, 140, 0, 0.5)';
-                e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 0.2)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-            {errors.username && <p className="text-[#ff6b6b] text-xs mt-1">{errors.username}</p>}
+            <div style={{ position: 'relative' }}>
+              <User size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                type="text"
+                className="glass-input"
+                style={{ paddingLeft: '44px' }}
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-white text-[13px] font-medium mb-1.5">
+          <div style={{ marginBottom: '28px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>
               Password
             </label>
-            <div className="relative">
+            <div style={{ position: 'relative' }}>
+              <Lock size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
               <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
+                type="password"
+                className="glass-input"
+                style={{ paddingLeft: '44px' }}
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="w-full text-[15px] text-white placeholder-[rgba(255,255,255,0.35)] p-[14px_16px] pr-12 rounded-[14px] outline-none transition-all duration-200"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'rgba(255, 140, 0, 0.5)';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 0.2)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.boxShadow = 'none';
-                }}
+                disabled={loading}
+                required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.5)] hover:text-white transition-colors p-1"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
             </div>
-            {errors.password && <p className="text-[#ff6b6b] text-xs mt-1">{errors.password}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="role" className="block text-white text-[13px] font-medium mb-1.5">
-              Role
-            </label>
-            <div className="relative">
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full appearance-none text-[15px] text-white p-[14px_16px] pr-10 rounded-[14px] outline-none transition-all duration-200 cursor-pointer"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'rgba(255, 140, 0, 0.5)';
-                  e.target.style.boxShadow = '0 0 0 2px rgba(255, 140, 0, 0.2)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              >
-                <option value="" disabled className="text-gray-900">Select your role</option>
-                <option value="admin" className="text-gray-900">Admin</option>
-                <option value="tl" className="text-gray-900">Team Lead</option>
-                <option value="employee" className="text-gray-900">Employee</option>
-              </select>
-              {/* Custom Select Arrow */}
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[rgba(255,255,255,0.5)]">
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
-            {errors.role && <p className="text-[#ff6b6b] text-xs mt-1">{errors.role}</p>}
           </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className={`w-full mt-6 text-white font-bold text-[16px] py-[16px] rounded-[14px] transition-all duration-200 flex items-center justify-center ${
-              loading ? 'opacity-60 cursor-not-allowed' : 'hover:brightness-110 hover:scale-[1.02]'
-            }`}
-            style={{
-              background: 'linear-gradient(135deg, #e65c00, #ff8c00)'
-            }}
+            className="btn-primary"
+            disabled={loading || role !== 'tl'}
+            style={{ width: '100%', padding: '14px' }}
           >
             {loading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Signing in...
-              </>
+              'Signing in...'
             ) : (
-              'Sign In'
+              <>
+                Sign In to TL Workspace <ArrowRight size={18} />
+              </>
             )}
           </button>
         </form>
-        
-        <div className="mt-8 text-center text-[rgba(255,255,255,0.45)] text-[13px]">
-          Role-based workspace access
-        </div>
       </div>
-
-      <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        .animate-fade-in-up {
-          animation: fadeInUp 0.5s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
-};
-
-export default Login;
+}

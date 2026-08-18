@@ -1,59 +1,95 @@
-import React from 'react';
 import StatusBadge from './StatusBadge';
-import { Clock, CheckSquare, UserCheck } from 'lucide-react';
+import { CheckSquare, Calendar, User, FolderKanban } from 'lucide-react';
 
 /**
- * Reusable Task Card Component
- * @param {Object} props
- * @param {Object} props.task - Task entity object
- * @param {Function} [props.onStatusChange] - Optional handler when status is updated
+ * TaskCard displaying task details according to Section 5.3 and Section 6.1
  */
-export default function TaskCard({ task, onStatusChange }) {
-  if (!task) return null;
-
-  const {
-    title = 'Untitled Task',
-    description = 'No task description provided.',
-    status = 'pending',
-    priority = 'Medium',
-    assigneeName = 'Unassigned',
-    dueDate = 'N/A',
-  } = task;
-
-  const priorityStyles = {
-    High: 'text-rose-400 bg-rose-950/40 border-rose-500/20',
-    Medium: 'text-amber-400 bg-amber-950/40 border-amber-500/20',
-    Low: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/20',
+export default function TaskCard({ task }) {
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      return dateStr;
+    }
   };
 
   return (
-    <div className="glass-card p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h4 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-          <CheckSquare className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-          <span>{title}</span>
-        </h4>
-        <StatusBadge status={status} />
-      </div>
+    <div
+      className="glass-card glass-card-hover"
+      style={{
+        padding: '20px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        gap: '16px',
+      }}
+    >
+      <div>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                padding: '8px',
+                borderRadius: '10px',
+                background: 'rgba(56, 189, 248, 0.15)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+              }}
+            >
+              <CheckSquare size={18} color="#38bdf8" />
+            </div>
+            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              {task.title || 'Untitled Task'}
+            </h4>
+          </div>
 
-      <p className="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">
-        {description}
-      </p>
-
-      <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
-        <div className="flex items-center gap-2">
-          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${priorityStyles[priority] || priorityStyles.Medium}`}>
-            {priority} Priority
-          </span>
-          <span className="flex items-center gap-1 text-slate-400">
-            <UserCheck className="w-3 h-3 text-slate-500" />
-            {assigneeName}
-          </span>
+          <StatusBadge status={task.status} />
         </div>
 
-        <div className="flex items-center gap-1 text-slate-500 text-[11px]">
-          <Clock className="w-3 h-3" />
-          <span>{dueDate}</span>
+        {/* Project & Employee Meta */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
+          {task.project_name || task.project ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <FolderKanban size={15} color="var(--accent-amber-light)" />
+              <span>Project: <strong style={{ color: '#fff' }}>{task.project_name || `Project #${task.project}`}</strong></span>
+            </div>
+          ) : null}
+
+          {task.employee_name || task.assigned_to_employee ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <User size={15} color="var(--accent-amber-light)" />
+              <span>Assigned to: <strong style={{ color: '#fff' }}>{task.employee_name || `Employee #${task.assigned_to_employee}`}</strong></span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Dates Timeline */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 14px',
+          borderRadius: '10px',
+          background: 'rgba(15, 9, 6, 0.5)',
+          border: '1px solid var(--glass-border)',
+          fontSize: '0.8rem',
+          color: 'var(--text-muted)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Calendar size={14} color="var(--text-muted)" />
+          <span>Start: <strong style={{ color: 'var(--text-secondary)' }}>{formatDate(task.start_date)}</strong></span>
+        </div>
+
+        <span>→</span>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Calendar size={14} color="var(--text-muted)" />
+          <span>Due: <strong style={{ color: 'var(--text-secondary)' }}>{formatDate(task.end_date)}</strong></span>
         </div>
       </div>
     </div>
